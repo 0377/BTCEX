@@ -1,0 +1,51 @@
+<include file="Public:header"/>
+
+<div class="main">
+	<div class="container-divider"></div>
+</div>
+
+<div class="container">
+	<nav class="sub-nav">
+		<ol>{:L(GetPosStr($info['id'],$id=0,$sign='&nbsp;&gt;&nbsp;',LANG_SET))}</ol>
+		
+		<form role="search" class="search" method="get" action="{:U('Support/index/search/')}">
+			<img class="icon" src="__PUBLIC__/Home/rh_img/soso.png" />
+			<input type="search" name="so" placeholder="{:L('搜索')}" autocomplete="off" value="{$keyword}">
+		</form>
+	</nav>
+
+	<div class="category-content wdh100">
+		<header class="page-header">
+
+			<if condition="LANG_SET eq 'zh-cn'">
+				<h1>{:L($classinfo['title'])}</h1>
+				<else/>
+				<h1>{:L($classinfo['title_en'])}</h1>
+			</if>
+		</header>
+		
+		<div class="section-tree" style="flex-direction:column;">
+			<section class="section">
+				<ul>
+					<volist name="classify" id="vo" empty="$empty">
+						<li>
+							<eq name="vo.recommend" value="1"><img src="__PUBLIC__/Home/rh_img/recommend.png" /></eq>
+							<a href="{:U('Support/index/articles/cid/'.$info['id'].'/id/'.$vo['id'])}" class="tit">{$vo['title']}</a>
+						</li>
+					</volist>
+				</ul>
+			</section>
+			<div class="pages">{$page}</div>
+		</div>
+	</div>
+</div>
+
+<include file="Public:footer" />
+
+<script>
+    var val = $('label#language').text();
+    if(val == "English"){
+        $('.tit').html(`<span>{$vo['title_en']}</span>`);
+
+    }
+</script>

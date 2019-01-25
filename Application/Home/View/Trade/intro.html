@@ -1,0 +1,34 @@
+<include file="Public:header_new" />
+<style>
+    body {
+        background-color: #f5f5f5;
+    }
+  
+</style>
+<div class="place">
+    <div class="place_cont w">
+        <p class="place_cont_title">{:L("币种简介")}</p>
+        <div class="place_message">
+            {:L("当前位置")}
+            <a href="">{:L("首页")}</a>
+            >{:L("币种介绍")}
+        </div>
+    </div>
+
+</div>
+<div class="intro">
+    <div class="intro_box">
+        <div class="intro_box_title">
+            <p>{:strtoupper($intro['name'])}</p>
+        </div>
+        <div class="intro_box_cont">
+            <strong>{:strtoupper($intro['name'])} {:L("是什么")}</strong>
+            <p>
+                {$intro['intro']}
+            </p>
+
+        </div>
+    </div>
+</div>
+
+<include file="Public:footer" />

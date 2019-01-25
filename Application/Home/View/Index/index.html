@@ -1,0 +1,305 @@
+<include file="Public:header" />
+<link rel="stylesheet" href="{:stamp('__PUBLIC__/Home/rh_css/swiper-4.3.3.min.css')}">
+<style>
+	.swiper-container-horizontal>.swiper-pagination-bullets, .swiper-pagination-custom, .swiper-pagination-fraction {
+		bottom: 20px;
+		left: 0;
+		width: 100%;
+	}
+	.banners #banner_slides {
+		height: 685px !important;
+		width: 100% !important;
+	}
+	.banners #banner_slides .swiper-slide {
+		height: 100% !important;
+		width: 100% !important;
+		margin-right: 0 !important;
+	}
+
+</style>
+
+
+<script type="text/javascript" src="{:stamp('__PUBLIC__/Home/rh_js/swiper.min.js')}"></script>
+
+<div class="banners" style="background-size: 100% 100%">
+	<!-- banner轮播 -->
+	<div class="swiper-container" id="banner_slides">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide">
+				<img class="img1" src="__PUBLIC__/Home/rh_img/main_banner.png" alt="">
+			</div>
+			<div class="swiper-slide">
+				<img class="img2" src="__PUBLIC__/Home/rh_img/main_banner1.png" alt="">
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var swipers = new Swiper('#banner_slides', {
+			autoplay: {
+				delay: 15000, // 15s轮播一次
+			},
+			loop: true, // 无限轮播
+			observer: true, //修改swiper自己或子元素时，自动初始化swiper 
+			observeParents: true, //修改swiper的父元素时，自动初始化swiper 
+			// navigation: {
+			// 	nextEl: '.swiper-button-next',
+			// 	prevEl: '.swiper-button-prev',
+			// },
+		});
+	</script>
+</div>
+<!-- <div class="banner" > -->
+
+<!-- <div class="banner-brief"> -->
+<!--<p class="text-1 animated fadeInUp">{:L('数字资产交易平台')}</p>
+		<p class="text-2 animated fadeInUp">{:L('让交易更<span>快捷</span>')} , {:L('让资产更<span>安全</span>')}</p>-->
+<!-- <p class="text-1 animated fadeInUp"></p> -->
+<!-- <p class="text-2 animated fadeInUp"></p> -->
+<!-- </div> -->
+
+<!--<div class="swiper-container">-->
+<!--<div class="swiper-container" style="margin-top: 250px!important;">-->
+
+<!-- <div class="swiper-container" style="margin-top: 250px!important;">
+		<div class="swiper-wrapper">
+			<volist name="banner" id="b">
+				<div class="swiper-slide">
+					<div class="icon-items animated zoomIn">
+						<span class="img_icon" style="background:url(__UPLOAD__/ad/{$b['img']}) no-repeat center;background-size: 100%;"></span>
+						<div class="text-content">
+							<p>{$b['name']}</p>
+							<p>{$b['onlinetime']|date='m月d日',###}</p>
+							<p>{:L($b['subhead'])}</p>
+						</div>
+					</div>
+				</div>
+			</volist>
+		</div>
+		<div class="swiper-pagination"></div>
+	</div> -->
+<!-- </div> -->
+<ul class="main-advert">
+	<if condition="(LANG_SET eq 'en-us')">
+		<volist name="notice_list" id="vov">
+			<li><a href="{:U('Support/index/articles/cid/'.$vov['pid'].'/id/'.$vov['id'])}">{$vov['title_en']}</a></li>
+			<span>/</span>
+		</volist>
+		<else />
+		<volist name="notice_list" id="vov">
+			<li><a href="{:U('Support/index/articles/cid/'.$vov['pid'].'/id/'.$vov['id'])}">{$vov['title']}</a></li>
+			<span>/</span>
+		</volist>
+	</if>
+	<li><a href="{:U('Support/index')}">{:L("更多公告")}</a></li>
+</ul>
+
+<div class="main-table-box5">
+	<ul class="table-tab">
+		<volist name="jiaoyiqu" id="v">
+			<li class="trade_qu_pai <eq name='key' value='$coinnav'>active</eq>" data="{$key}" onclick="trade_qu(this)" title="对{$v}交易">{$v}</li>
+		</volist>
+	</ul>
+	<ul class="table-head" id="market_coin_tabs">
+		<li style="width: 15%"><i></i>{:L('交易对')}</li>
+		<li style="width: 16%"><i></i>{:L('最新价格')}</li>
+		<li style="width: 10%">24h {:L('涨跌幅')}</li>
+		<li style="width: 16%"><i></i>24h {:L('最高价')}</li>
+		<li style="width: 16%"><i></i>24h {:L('最低价')}</li>
+		<li style="width: 20%"><i></i>24h {:L('成交量')}</li>
+		<li style="width: 7%" class="tr">{:L('交易')}<i></i></li>
+	</ul>
+	<ul class="table-item coins_list" id="coins_list"></ul>
+</div>
+
+<div class="main-summary">
+	<!--<h2 class="title">Global Blockchain Assets Trading Platform</h2>-->
+	<h2 class="title">{:L('WESX-全球数字资产交易服务商')}</h2>
+	<div class="summary-content">
+		<div class="item">
+			<img src="__PUBLIC__/Home/rh_img/img_icon/trait_001.gif" />
+			<h3>{:L('系统可靠')}</h3>
+			<p>{:L('保障交易的安全、稳定、高效运行')}</p>
+			<p>{:L('全球顶级人才构成的精英团队')}</p>
+		</div>
+		<div class="item">
+			<img src="__PUBLIC__/Home/rh_img/img_icon/trait_002.gif" />
+			<h3>{:L('资金保障')}</h3>
+			<p>{:L('银行级数据加密，动态身份验证')}</p>
+			<p>{:L('冷钱包存储，金融级架构，多重安全防护')}</p>
+		</div>
+		<div class="item">
+			<img src="__PUBLIC__/Home/rh_img/img_icon/trait_003.gif" />
+			<h3>{:L('极致体验')}</h3>
+			<p>{:L('充提迅速、多国语言')}</p>
+			<p>{:L('高性能撮合交易引擎，快速交易体验')}</p>
+		</div>
+		<div class="item">
+			<img src="__PUBLIC__/Home/rh_img/img_icon/trait_004.gif" />
+			<h3>{:L('专业服务')}</h3>
+			<p>{:L('专业的国际服务团队')}</p>
+			<p>{:L('及时响应用户问题，为您保驾护航')}</p>
+		</div>
+	</div>
+</div>
+
+<div class="box-main-warings">
+	<div class="main-warings">
+		<img src="__PUBLIC__/Home/rh_img/icon_waring.png" />
+		<span>{:L('数字资产是创新的投资产品，价格波动较大，具有较高的投资风险，请您投资前对数字资产充分认知，理性判断自己的投资能力，审慎做出投资决策。')}</span>
+	</div>
+</div>
+
+<div class="main-download">
+	<div class="title">
+		<h2>{:L("多终端覆盖")}</h2>
+		<h3>{:L("支持")}{:L("iOS、Android、Windows、Mac")}{:L("等客户端支持全业务功能")}</h3>
+	</div>
+	<div class="listshow">
+		<div class="list-ld">
+			<img src="__PUBLIC__/Home/rh_img/download-1.png" height="120" />
+			<ul>
+				<li><a onclick="Downloads()">MAC {:L("下载")}</a></li>
+				<li><a onclick="Downloads()">{:L("Win")}{:L("32位")} {:L("下载")}</a></li>
+				<li><a onclick="Downloads()">{:L("Win")}{:L("64位")} {:L("下载")}</a></li>
+			</ul>
+		</div>
+		<div class="list-rd">
+			<img src="__PUBLIC__/Home/rh_img/download-2.png" height="120" />
+			<ul>
+				<li><a onclick="Downloads()">IOS {:L("下载")}</a></li>
+				<li><a onclick="Download_Android()">Android {:L("下载")}</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+<script>
+	$(function () {
+		var value = $('.language label').text();
+		// console.log(value);
+		if (value == "English") {
+			$("#banner_slides .img1").attr("src", "__PUBLIC__/Home/rh_img/en_main_banner.png");
+			$("#banner_slides .img2").attr("src", "__PUBLIC__/Home/rh_img/en_main_banner1.png");
+		}
+	})
+</script>
+<script>
+	function trends() {
+		$.getJSON('/ajax/index_b_trends?t=' + Math.random(), function (d) {
+			trends = d;
+			allcoin();
+
+		});
+	}
+
+	function allcoin(cb) {
+		var htmlHref = window.location.href;
+		htmlHref = htmlHref.replace(/^http:\/\/[^/]+/, "");
+		var addr = htmlHref.substr(htmlHref.lastIndexOf('/', htmlHref.lastIndexOf('/') - 1) + 1);
+		var index = addr.lastIndexOf("\/");
+		//js 获取字符串中最后一个斜杠后面的内容
+		var addrLast = decodeURI(addr.substring(index + 1, addr.length));
+		//js 获取字符串中最后一个斜杠前面的内容
+		var str = decodeURI(addr.substring(0, index));
+		var string = addrLast.substring(0, 5);
+
+
+		var trade_qu_id = $('.table-tab .active').attr('data');
+		$.get('/ajax/allcoin_a/id/' + trade_qu_id + '?t=' + Math.random() + '&lang=' + string, cb ? cb : function (data) {
+			var datas;
+			if (data.status == 1) {
+				datas = data.url;
+			}
+			renderPage(datas);
+			// console.log(datas);
+			t = setTimeout('allcoin()', 5000);
+		}, 'json');
+	}
+
+	function renderPage(ary) {
+	    // console.log(ary);
+		var html = '';
+		for (var i in ary) {
+			ifcolor_1 = (ary[i][8] >= 0 ? 'btn-up' : 'btn-down');
+			ifcolor_2 = (ary[i][8] >= 0 ? 'icon-up' : 'icon-down');
+			/*		html += '<li><dl><dt class="fl market" style="width: 15%"><i></i><a href="/trade/index/market/' + ary[i][9] + '/"><img src="/Upload/coin/' + ary[i][10] + '" width="22" height="22" /><span class="coin_name">' + ary[i][0] + '</span><span> / ' + ary[i][1] + '</span></a></dt><dd class="fl" style="width: 16%"><i></i>' + ary[i][2] + '</dd><dd class="fl float" style="width: 10%"><span class="' + ifcolor_1 + '"><i class="' + ifcolor_2 + '"></i>' + (parseFloat(ary[i][8]) < 0 ? '' : '+') + ((parseFloat(ary[i][8]) < 0.01 && parseFloat(ary[i][8]) > -0.01) ? "0.00" : (parseFloat(ary[i][8])).toFixed(2)) + '%</span></dd><dd class="fl" style="width: 16%"><i></i>' + ary[i][11] + '</dd><dd class="fl" style="width: 16%"><i></i>' + ary[i][12] + '</dd><dt class="fl deal" style="width: 20%"><div><p>' + ary[i][7] + ' ' + ary[i][0] + '</p><p>≈ ' + ary[i][5] + ' ' + ary[i][14] + '</p></div></dt><dd class="fl tr" style="width: 7%"><a href="/trade/index/market/' + ary[i][9] + '/"><img src="__PUBLIC__/Home/rh_img/icon_operation.png" /></a><i></i></dd></dl></li>';*/
+			if (ary[i][15] <= 0) {
+				/*html += '<li><dl><dt class="fl market" style="width: 15%"><i></i><img src="/Upload/coin/' + ary[i][10] +
+					'" width="22" height="22" /><span class="coin_name">' + ary[i][0] + '</span><span> / ' + ary[i][1] +
+					'</span></a></dt><dd class="fl" style="width: 16%"><i></i>' + ary[i][2] +
+					'</dd><dd class="fl float" style="width: 10%"><span class="' + ifcolor_1 + '"><i class="' + ifcolor_2 + '"></i>' +
+					(parseFloat(ary[i][8]) < 0 ? '' : '+') + ((parseFloat(ary[i][8]) < 0.01 && parseFloat(ary[i][8]) > -0.01) ? "0.00" :
+						(parseFloat(ary[i][8])).toFixed(2)) + '%</span></dd><dd class="fl" style="width: 16%"><i></i>' + ary[i][11] +
+					'</dd><dd class="fl" style="width: 16%"><i></i>' + ary[i][12] +
+					'</dd><dt class="fl deal" style="width: 20%"><div><p>' + ary[i][7] + ' ' + ary[i][0] + '</p><p>≈ ' + ary[i][5] +
+					' ' + ary[i][14] +
+					'</p></div></dt><dd class="fl tr" style="width: 7%"><img src="__PUBLIC__/Home/rh_img/icon_operation.png" /><i style="margin-right:6px"></i></dd></dl></li>';
+				*/
+                html += '<li>' +
+                    '<a class="clear" href="/trade/index/market/' + ary[i][9] + '/">' +
+                    '<dl class="clear">' +
+                    '<dt class="fl market" style="width: 15%"><i></i><img src="/Upload/coin/' + ary[i][10] + '" width="22" height="22" /><span class="coin_name">' + ary[i][0] +
+                    '</span><span> / ' + ary[i][1] + '</span></dt>' +
+                    '<dt class="fl deal" style="width: 16%"><div><p>' + ary[i][2] + ' </p><p>≈ ' + ary[i][16] + ' ' + ary[i][14] + '</p></div></dt>' +
+                    '<dd class="fl float" style="width: 10%"><span class="' + ifcolor_1 + '"><i class="' + ifcolor_2 + '"></i>' + (
+                        parseFloat(ary[i][8]) < 0 ? '' : '+') + ((parseFloat(ary[i][8]) < 0.01 && parseFloat(ary[i][8]) > -0.01) ? "0.00" :
+                        (parseFloat(ary[i][8])).toFixed(2)) + '%</span></dd>' +
+                    '<dt class="fl deal" style="width: 16%"><div><p>' + ary[i][11] + '</p><p>≈' + ary[i][17] + ' ' + ary[i][14] +'</p></div></dt>' +
+
+                    '<dt class="fl deal style="width: 16%">' + '<div><p>' + ary[i][12] +'</p>' + '<p>≈' + ary[i][18] + ' ' + ary[i][14] +'</p>' + '</div>' + '</dt>' +
+
+                    '<dt class="fl deal" style="width: 20%"><div><p>' + ary[i][7] + ' ' + ary[i][0] + '</p><p>≈ ' + ary[i][5] + ' ' + ary[i][14] + '</p></div></dt>' +
+
+                    '<dd class="fl tr" style="width: 7%"><img src="__PUBLIC__/Home/rh_img/icon_operation.png" /></dd>' +
+                    '</dl>' +
+                    '</a>' +
+                    '' +
+                    '</li>';
+
+			} else {
+                html += '<li>' +
+							'<a class="clear" href="/trade/index/market/' + ary[i][9] + '/">' +
+								'<dl class="clear">' +
+									'<dt class="fl market" style="width: 15%"><i></i><img src="/Upload/coin/' + ary[i][10] + '" width="22" height="22" /><span class="coin_name">' + ary[i][0] +
+									'</span><span> / ' + ary[i][1] + '</span></dt>' +
+									'<dt class="fl deal" style="width: 16%"><div><p>' + ary[i][2] + ' </p><p>≈ ' + ary[i][16] + ' ' + ary[i][14] + '</p></div></dt>' +
+									'<dd class="fl float" style="width: 10%"><span class="' + ifcolor_1 + '"><i class="' + ifcolor_2 + '"></i>' + (
+										parseFloat(ary[i][8]) < 0 ? '' : '+') + ((parseFloat(ary[i][8]) < 0.01 && parseFloat(ary[i][8]) > -0.01) ? "0.00" :
+										(parseFloat(ary[i][8])).toFixed(2)) + '%</span></dd>' +
+									'<dt class="fl deal" style="width: 16%"><div><p>' + ary[i][11] + '</p><p>≈' + ary[i][17] + ' ' + ary[i][14] +'</p></div></dt>' +
+
+									'<dt class="fl deal style="width: 16%">' + '<div><p>' + ary[i][12] +'</p>' + '<p>≈' + ary[i][18] + ' ' + ary[i][14] +'</p>' + '</div>' + '</dt>' +
+
+									'<dt class="fl deal" style="width: 20%"><div><p>' + ary[i][7] + ' ' + ary[i][0] + '</p><p>≈ ' + ary[i][5] + ' ' + ary[i][14] + '</p></div></dt>' +
+
+									'<dd class="fl tr" style="width: 7%"><img src="__PUBLIC__/Home/rh_img/icon_operation.png" /></dd>' +
+								'</dl>' +
+							'</a>' +
+                    '' +
+                    '</li>';
+			}
+		}
+		$('#coins_list').html(html);
+	}
+
+	function trade_qu(o) {
+		$('.trade_qu_pai').removeClass('active');
+		$(o).addClass('active');
+		allcoin();
+	}
+	trends();
+</script>
+<script>
+	function Downloads() {
+		layer.msg("{:L('敬请期待')}");
+		return false;
+	}
+
+	function Download_Android() {
+		window.location.href = 'https://copy.im/a/R3b6mC';
+	}
+</script>
+
+<script type="text/javascript" src="__PUBLIC__/Home/rh_js/swiper.animate1.0.3.min.js"></script>
+<include file="Public:footer" />
+</script>

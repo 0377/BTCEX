@@ -1,0 +1,1 @@
+2018-12-24 13:43:13 pid:1 Worker process terminated with ERROR: E_RECOVERABLE_ERROR "Object of class Workerman\Connection\TcpConnection could not be converted to string in D:\Bourse\webms\Protocols\Http.php on line 271"

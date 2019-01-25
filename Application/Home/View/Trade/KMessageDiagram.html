@@ -1,0 +1,430 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <title>TradingView Charting Library demo</title>
+
+    <!-- Fix for iOS Safari zooming bug -->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+</head>
+
+<body style="margin:0px;">
+<div id="tv_chart_container"></div>
+</body>
+
+</html>
+<script type="text/javascript" src="/Public/Home/js/jquery.min.js"></script>
+<script type="text/javascript" src="/Public/Home/K_js/charting_library/charting_library.min.js"></script>
+<script type="text/javascript" src="/Public/Home/K_js/datafeeds/udf/dist/polyfills.js"></script>
+<script type="text/javascript" src="/Public/Home/K_js/datafeeds/udf/dist/bundle.js"></script>
+<script type="text/javascript">
+
+    /*var trade_qu_id = $('.table-section-title .active').attr('data');
+    var trade_moshi = 1;*/
+    //获取cookie
+    function get_cookie(Name) {
+        var search = Name + "=" //查询检索的值
+        var returnvalue = ""; //返回值
+        if (document.cookie.length > 0) {
+            sd = document.cookie.indexOf(search);
+            if (sd != -1) {
+                sd += search.length;
+                end = document.cookie.indexOf(";", sd);
+                if (end == -1)
+                    end = document.cookie.length;
+                //unescape() 函数可对通过 escape() 编码的字符串进行解码。
+                returnvalue = unescape(document.cookie.substring(sd, end))
+            }
+        }
+        return returnvalue;
+    }
+    var config    =   {
+        supported_resolutions: ["5", "15", "30", "60", "360", "1D"],
+    };
+  /*  var datefeeds={
+        onReady: function (callback) {
+            console.log('=====onReady running')
+            setTimeout(function () {
+                callback(config);
+            }, 0);
+        },
+        resolveSymbol: function (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
+            console.log('======resolveSymbol running');
+            let symbol_stub = {
+                "name"        : symbolName,       //商品名称。您的用户将看到它(作为一个字符串)
+                "ticker"       : symbolName,       //它是您的商品体系中此商品的唯一标识符
+                "description"     : symbolName ,      //描述
+                "type"        : 'stock',        //仪表的可选类型:stock, index, forex, futures, bitcoin, expression, spread, cfd
+                "session"       : "24x7",           //商品交易时间(7*24小时)
+                "timezone"       : "Asia/Shanghai",  //时区
+                "exchange"       :  symbolName,     //listed_exchange 现在，这两个字段都为某个交易所的略称
+                //minmov(最小波动), pricescale(价格精度), minmove2, fractional(分数)
+                "minmov"        : 1,
+                "pricescale"    : 100000,
+                "has_intraday"  : true,//布尔值显示商品是否具有日内（分钟）历史数据
+                "intraday_multipliers": config.supported_resolutions,//这是一个包含日内分辨率(分钟单位)的数组
+                "volume_precision": 8,    //整数显示此商品的成交量数字的小数位。0表示只显示整数。1表示保留小数位的1个数字字符
+                "data_status"   : "streaming",//数据状态(streaming(实时),endofday(已收盘),pulsed(脉冲),delayed_streaming(延迟流动中))
+            };
+            setTimeout(function () {onSymbolResolvedCallback(symbol_stub);},0);
+        },
+        //通过日期范围获取历史K线数据。图表库希望通过onHistoryCallback仅一次调用，接收所有的请求历史。而不是被多次调用。
+        getBars:function(symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest){
+            let params  =   {
+                BrokerID    : xxx,
+                Account     : "xxxxx",
+                Symbol      : symbolInfo.name,
+                From        : to+86400,//#就这，困扰我很久的代码
+                Count       : 2000,
+                TimeFrame   : globalInterval
+             };
+            console.log("params = "+JSON.stringify(params));
+            $.ajax({
+                type: 'post',
+                url :   POST_URL_QUERY,
+                data:   JSON.stringify(params),
+                dataType: 'json',
+                success:function(res){
+                    let data = res.Bars.Bars;
+                    let bars = {};
+                    if(data.length>1){
+                        bars = data.map(el => {
+                            return {
+                                time: el.Time * 1000, //TradingView requires bar time in ms
+                                low: el.Low,
+                                high: el.High,
+                                open: el.Open,
+                                close: el.Close,
+                                //volume: el.Volume
+                            }
+                        });
+                        if(firstDataRequest){
+                            history[symbolInfo.name] = bars[bars.length - 1];
+                        }
+                        // console.table (data);
+                        onHistoryCallback(bars, {noData: false});
+                    }else{
+                        onHistoryCallback(bars, {noData: true})
+                    }
+                }
+            });
+        },
+
+    }*/
+    var datafeed = {
+        onReady: cb => {
+            //  console.log("=====onReady running");
+            setTimeout(() => cb(config), 0);
+            //  cb(config)
+        },
+        //用来解析商品
+   /*     resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
+            var symbol_stub = {
+                name: symbolName,
+                description: "",
+                has_intraday: true,
+                has_no_volume: false,
+                minmov: 1,
+                minmov2: 2,
+                //价格精确值
+                pricescale: 100000000,
+                session: "24x7",
+
+                supported_resolutions: ["1", "5", "15", "30", "60","1D", "1W"],
+                ticker: symbolName,
+                timezone: "Asia/Shanghai",
+                type: "stock"
+            }
+
+            onSymbolResolvedCallback(symbol_stub);
+            //setTimeout(() => onSymbolResolvedCallback(symbol_stub), 2000);
+        },*/
+
+        resolveSymbol: function (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) {
+            console.log('======resolveSymbol running');
+            let symbol_stub = {
+                "name"        : symbolName,       //商品名称。您的用户将看到它(作为一个字符串)
+
+
+                "type"        : 'stock',        //仪表的可选类型:stock, index, forex, futures, bitcoin, expression, spread, cfd
+                "session"       : "24x7",           //商品交易时间(7*24小时)
+                "timezone"       : "Asia/Shanghai",  //时区
+                "exchange"       :  symbolName,     //listed_exchange 现在，这两个字段都为某个交易所的略称
+                //minmov(最小波动), pricescale(价格精度), minmove2, fractional(分数)
+                "minmov"        : 1,
+                    "pricescale"    : 100000000,
+                "has_intraday"  : true,//布尔值显示商品是否具有日内（分钟）历史数据
+                "intraday_multipliers": config.supported_resolutions,//这是一个包含日内分辨率(分钟单位)的数组
+                "volume_precision": 8,    //整数显示此商品的成交量数字的小数位。0表示只显示整数。1表示保留小数位的1个数字字符
+                "data_status"   : "pulsed",//数据状态(streaming(实时),endofday(已收盘),pulsed(脉冲),delayed_streaming(延迟流动中))
+            };
+            //  onSymbolResolvedCallback(symbol_stub)
+           setTimeout(function () {onSymbolResolvedCallback(symbol_stub);},0);
+        },
+
+        getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+
+            /*if(get_cookie('chart_time')){
+                var types = get_cookie('chart_time')
+            }else{
+                var types = 1440;
+            }*/
+            //   alert(window.parent.socket.readyState);
+            if (window.parent.ws.readyState == 1){
+
+                /*var time =Math.round(new Date().getTime()/1000).toString();
+                console.log(time);*/
+                var host = window.location.protocol;
+                var url =  window.location.host;
+                let params  =   {
+                    type: 'client',
+                    method: 'KlineHistory',
+                    data: {
+                        host:host,
+                        url: url,
+                        market: symbolInfo.name,
+                        from:from,
+                        to:to,
+                        resolution:resolution
+                    }
+                };
+                var paramss= JSON.stringify(params);
+                window.parent.ws.send(paramss);
+
+                window.parent.KlineHistory = data =>{
+                    let bars = [];
+                    if (data){
+                        data.forEach(e => {
+                            var _bar = {
+                                time: e.t * 1000,
+                                close: e.c,
+                                open: e.o,
+                                high: e.h,
+                                low: e.l,
+                                volume: e.v
+                            }
+                            bars.push(_bar);
+                        });
+                        meta = {
+                            noData:false
+                        };
+                        // onHistoryCallback(bars, meta)
+                        //console.log(bars);
+                        // console.log(meta);
+                        //console.log(bars);
+                        // console.log(noData);
+                    }else{
+                        meta = {
+                            noData: true,
+                        }
+                    }
+                    onHistoryCallback(bars, meta);
+                }
+                // console.log('sss');
+            }
+        },
+        subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
+
+            window.parent.KlineUpdata = data => {
+
+                if (data.s!='ok'){
+                    return;
+                }
+                var bar = {
+                    time: data.t * 1000,
+                    close: data.c,
+                    open: data.o,
+                    high: data.h,
+                    low: data.l,
+                    volume: data.v
+                }
+                // onRealtimeCallback(bar)
+                setTimeout(() => onRealtimeCallback(bar),1000);
+            }
+        },
+    }
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+      const widgetOptions={
+          fullscreen: true,// 是否全屏
+          symbol: "{$market}", // 商品标识
+          //  symbol: "hrc_usdt",
+          interval: '5', // 初始化显示时间范围
+          container_id: "tv_chart_container", // 容器的id名
+          // BEWARE: no trailing slash is expected in feed URL
+          // 调用接口API
+          datafeed: datafeed,
+          timezone: "Asia/Shanghai",
+          library_path: "/Public/Home/K_js/charting_library/",//调用本js图表地库和样式
+          // 语言 en英文 zh 中文
+          locale: getParameterByName('lang') || "zh",
+          disabled_features: ["use_localstorage_for_settings"],// 禁用功能
+          enabled_features: ["study_templates"],
+         //charts_storage_url: 'http://saveload.tradingview.com',
+          //charts_storage_api_version: "1.1",
+          //client_id: 'tradingview.com',
+          //user_id: 'public_user_id',
+          //theme: getParameterByName('theme'),
+          disabled_features:[
+              "header_indicators",
+              "header_compare",
+              "header_settings",
+              "use_localstorage_for_settings",
+              "display_market_status",
+              "volume_force_overlay",
+              "timeframes_toolbar",
+              //相机
+              "header_screenshot",
+              //搜索
+              "header_symbol_search",
+              //保存
+              "header_saveload",
+              "caption_buttons_text_if_possible",
+              "header_widget_dom_node",
+              "header_screenshot",
+              "header_chart_type",
+              "header_compare",
+              "header_undo_redo",
+              "timeframes_toolbar",
+              "volume_force_overlay",
+              "header_resolutions",
+              // 'header_indicators',
+              /*  //左侧
+              //底部
+              "timeframes_toolbar",
+              //指标
+              "header_indicators",
+              //相机
+              "header_screenshot",
+              //搜索
+              "header_symbol_search",
+              //保存
+              "header_saveload",
+              //全屏
+              "header_fullscreen_button"*/
+
+          ],
+
+
+      };
+      var widget  = new TradingView.widget(widgetOptions);
+    var thats = widget;
+    var buttons = [
+
+        {title:'1min',resolution:'1',chartType:1},
+        {title:'3min',resolution:'3',chartType:1},
+        {title:'5min',resolution:'5',chartType:3},
+        {title:'15min',resolution:'15',chartType:1},
+        {title:'30min',resolution:'30',chartType:1},
+        {title:'1hour',resolution:'60',chartType:1},
+        {title:'1day',resolution:'1440',chartType:1},
+        {title:'1week',resolution:'10080',chartType:1},
+        {title:'1month',resolution:'1M',chartType:1},
+    ];
+    var studies = [];
+
+    //生成分时按钮
+   function createButton(buttons){
+        for(var i = 0; i < buttons.length; i++){
+            (function(button){
+                thats.createButton()
+                    .attr('title', button.title).addClass("mydate")
+                    .text(button.title)
+                    .on('click', function(e) {
+                        if($(this).parent().hasClass('active')){
+                            return false;
+                        }
+                        localStorage.setItem('tradingview.resolution',button.resolution);
+                        localStorage.setItem('tradingview.chartType',button.chartType);
+                        $(this).parent().addClass('active').siblings('.active').removeClass('active');
+                        thats.chart().setResolution(button.resolution, function onReadyCallback() {});
+                        if(button.chartType != thats.chart().chartType()){
+                           thats.chart().setChartType(button.chartType);
+                            toggleStudy(button.chartType);
+                        }
+                    })//.parent().addClass('my-group'+(button.resolution==resolution && button.chartType == chartType ? ' active':''));
+            })(buttons[i]);
+        }
+    }
+
+    //设置均线种类 均线样式
+    function createStudy(){
+        var id = widget.chart().createStudy('Moving Average', false, false, [5], null, {'Plot.color': 'rgb(150, 95, 196)'});
+        studies.push(id);
+        id = widget.chart().createStudy('Moving Average', false, false, [10], null, {'Plot.color': 'rgb(116,149,187)'});
+        studies.push(id);
+        id = widget.chart().createStudy('Moving Average', false, false, [20],null,{"plot.color": "rgb(58,113,74)"});
+        studies.push(id);
+        id = widget.chart().createStudy('Moving Average', false, false, [30],null,{"plot.color": "rgb(118,32,99)"});
+        studies.push(id);
+    }
+    function toggleStudy(chartType){
+        var state = chartType == 3 ? 0 : 1;
+        for(var i = 0; i < studies.length; i++){
+            thats.chart().getStudyById(studies[i]).setVisible(state);
+        }
+    }
+
+    widget.onChartReady(function () {
+        createStudy();
+        createButton(buttons);
+        //设置均线种类 均线样式
+      // createStudy();
+        /* //生成时间按钮
+        createButton(buttons);
+      //  thats.chart().setChartType(chartType);
+        toggleStudy(chartType);*/
+
+
+    /*    widget.createButton({
+            align: "left"
+        }).attr('title', "Add item").on('click', function (e) {
+                widget.chart().createStudy("Moving Average", false, false, [5], function (guid) {
+                    console.log(guid);
+                });
+            }).append('<span>5MA</span>');
+
+        widget.createButton({
+            align: "left"
+        }).attr('title', "Add item").on('click', function (e) {
+            widget.chart().createStudy("Moving Average", false, false, [10], function (guid) {
+                console.log(guid);
+            }, {
+                "plot.color.0": "red"
+            });
+        }).append('<span>10MA</span>');
+        widget.createButton({
+            align: "left"
+        }).attr('title', "Add item").on('click', function (e) {
+            widget.chart().createStudy("Moving Average", false, false, [20], function (guid) {
+                console.log(guid);
+            }, {
+                "plot.color.0":"blue"
+            });
+        }).append('<span>20MA</span>');
+        widget.createButton({
+            align: "left"
+        }).attr('title', "Add item").on('click', function (e) {
+            widget.chart().createStudy("Moving Average", false, false, [30], function (guid) {
+                console.log(guid);
+            }, {
+                "plot.color.0":"blue"
+            });
+        }).append('<span>30MA</span>');
+        widget.createButton({
+            align: "left"
+        }).attr('title', "Add item").on('click', function (e) {
+            widget.chart().createStudy("Moving Average", false, false, [60], function (guid) {
+                console.log(guid);
+            }, {
+                "plot.color.0":"green"
+            });
+        }).append('<span>60MA</span>');*/
+    })
+
+</script>

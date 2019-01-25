@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+<h1>GatewayWorker的websocket连接</h1>
+<div class="row">
+    websocket send content：<input type="text" style="height: 50px; width: 100%;" name="data" id="data">
+    <p></p>
+    <button id="submit" onclick="sub()">send info</button>
+    <p></p>
+    <div id="output"></div>
+    <!-- TradingView Widget BEGIN -->
+    <div class="tradingview-widget-container">
+        <div id="tradingview_632e4"></div>
+        <div class="tradingview-widget-copyright"><a href="https://cn.tradingview.com/symbols/NASDAQ-AAPL/" rel="noopener" target="_blank"><span class="blue-text">AAPL图表</span></a>由TradingView提供</div>
+        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+        <script type="text/javascript">
+            new TradingView.widget(
+                {
+                    "width": 980,
+                    "height": 610,
+                    "symbol": "NASDAQ:AAPL",
+                    "interval": "D",
+                    "timezone": "Etc/UTC",
+                    "theme": "Light",
+                    "style": "1",
+                    "locale": "zh_CN",
+                    "toolbar_bg": "rgba(101, 101, 101, 1)",
+                    "enable_publishing": false,
+                    "allow_symbol_change": true,
+                    "container_id": "tradingview_632e4"
+                }
+            );
+        </script>
+    </div>
+    <!-- TradingView Widget END -->
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/reconnecting-websocket/1.0.0/reconnecting-websocket.min.js"></script>
+<script type="text/javascript">
+   var newUrl = "ws://"+document.domain+":8331";
+    ws = new WebSocket(newUrl);
+    // 服务端主动推送消息时会触发这里的onmessage
+    ws.onmessage = function(e){
+        // json数据转换成js对象
+        var data = JSON.parse(e.data);
+        console.log(data);
+        var type = data.type || '';
+        switch(type){
+            // Events.php中返回的init类型的消息，将client_id发给后台进行uid绑定
+            case 'init':
+                // 利用jquery发起ajax请求，将client_id发给后端进行uid绑定
+               $.post(
+                   // "{:url('index/chat_room/bind')}",
+                    "{:url('/Wokerman/ajaxs')}",
+                    {client_id: data.client_id},
+                    function(data)
+                    {
+                        console.log('init:'+data);
+                    },
+                    'json'
+                );
+                break;
+            case  'say':
+                console.log('say:'+e.data);
+                break;
+            // 当mvc框架调用GatewayClient发消息时直接alert出来
+            default :
+                alert(e.data);
+        }
+    };
+</script>
+<script>
+/*
+    var wsUri =  "ws://"+document.domain+":8331";
+    var outputContent;
+    var roomId = 'L06777';
+    var userId = 4840043;
+    var userName = 'Tinywan' + Math.random();
+
+    // 把当新链接的客户端加入到当前直播间,消息类型：{"type":"join","roomId":"1002","userId":"88","userName":"userName"}
+    var joinContent = {
+        "type": "join",
+        "roomId": roomId,
+        "userId": userId,
+        "userName": userName
+    };
+    // 初始化页面操作
+    function init() {
+        outputContent = document.getElementById("output");
+        initWebSocket();
+    }
+
+    function initWebSocket() {
+        websocket = new ReconnectingWebSocket(wsUri);
+        websocket.onopen = function (evt) {
+            onOpen(evt)
+        };
+        websocket.onclose = function (evt) {
+            onClose(evt)
+        };
+        websocket.onmessage = function (evt) {
+            onMessage(evt)
+        };
+        websocket.onerror = function (evt) {
+            onError(evt)
+        };
+    }
+
+    function onOpen(evt) {
+        console.log("CONNECTED");
+    }
+
+    // 接收数据
+    function onMessage(evt) {
+        var data = eval("(" + evt.data + ")");
+        var type = data.type || '';
+        switch (type) {
+            case 'init':
+                // 把当新链接的客户端加入到当前直播间
+                console.log('-------init--------' + data);
+                alert(JSON.stringify(joinContent));
+                websocket.send(JSON.stringify(joinContent));
+                writeToScreen('<span style="color: blue;">RESPONSE: ' + evt.data + '</span>');
+                break;
+            case 'join':
+                console.log('-------join--------' + data);
+                writeToScreen(
+                    '<span style="color: blue;"> ' + ' 新用户: ' + '</span>' +
+                    '<span style="color: red;"> ' + data.userName + '</span>' +
+                    '<span style="color: green;"> ' + data.joinTime + '</span>' +
+                    '<span style="color: black;"> ' + data.msg + '</span>'
+                );
+                break;
+            case 'say':
+                console.log('say======' + data);
+                writeToScreen(
+                    '<span style="color: blue;"> ' + ' Chat: ' + '</span>' +
+                    '<span style="color: red;"> ' + data.userName + '</span>' +
+                    '<span style="color: #D2691E;"> ' + data.commentTime + '</span>' +
+                    '<span style="color: black;"> ' + data.content + '</span>'
+                );
+                break;
+            default :
+                console.log(data);
+                break;
+        }
+    }
+
+    function onError(evt) {
+        console.log('<span style="color: red;">ERROR:</span> ' + evt.data);
+    }
+
+    function onClose(evt) {
+        console.log("DISCONNECTED");
+    }
+
+    function writeToScreen(message) {
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        outputContent.appendChild(pre);
+    }
+
+    function sub() {
+        var text = document.getElementById('data').value;
+        // {"type":"say",,"msg":"Welcome 111111111111Live Room"}
+        var sayContent = {
+            "type": "say",
+            "roomId": roomId,
+            "userId": userId,
+            "userName": userName,
+            "content": text
+        };
+        websocket.send(JSON.stringify(sayContent));
+    }
+    window.addEventListener("load", init, false);
+*/
+
+</script>

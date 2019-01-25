@@ -1,0 +1,51 @@
+<include file="Public:header"/>
+
+<div class="main">
+	<div class="container-divider" style="display: none"></div>
+	<section class="hero">
+		<div class="hero-inner">
+			<form role="search" class="search-full" method="get" action="{:U('Support/index/search/')}">
+				<img class="icon" src="__PUBLIC__/Home/rh_img/soso.png" />
+				<input type="search" name="so" id="so" placeholder="{:L('搜索')}" autocomplete="off">
+			</form>
+		</div>
+	</section>
+</div>
+
+<div class="container">
+	<ul class="list">
+		<volist name="classify" id="voc">
+			<li><a href="{:U('Support/index/categories','cid='.$voc['id'])}">{:L($voc['title'])}</a></li>
+		</volist>
+	</ul>
+
+	<div class="recent-activity">
+		<h2 class="recent-activity-header">{:L('最近的活动')}</h2>
+		<ul class="recent-activity-list">
+
+			<volist name="classlist" id="vo" empty="$empty">
+				<li>
+					<a href="{:U('Support/index/articles/cid/'.$vo['pid'].'/id/'.$vo['id'])}">
+						<if condition="LANG_SET eq 'zh-cn'">
+							<h3 id="en">{$vo['classname']}</h3>
+							<p id="in">{$vo['title']}</p>
+						<else/>
+							<h3 id="en">{$vo['classname_en']}</h3>
+							<p id="in">{$vo['title_en']}</p>
+						</if>
+					</a>
+					<span>{:L('文章创建时间：')}{$vo.addtime|date="Y-m-d H:i:s",###}</span>
+				</li>
+			</volist>
+		</ul>
+	</div>
+</div>
+
+<include file="Public:footer" />
+<script>
+    var val = $('label#language').text();
+    // if(val == "English"){
+    //     $('p#in').html(`{:L($vo['title_en'])}`);
+    //     $('#en').html(`{:L($vo['classname_en'])}`);
+    // }
+</script>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <include file="Public:header2" />
+    <script type="text/javascript" src="__PUBLIC__/layer/layer.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/Home/js/jquery.cookies.2.2.0.js"></script>
+</head>
+<body class="blackbg">
+    <div id="container" class="logbg">
+        <div class="log_title">
+            <span class="back"><a href="javascript:history.go(-1)"></a></span>
+            {:L('实名认证')} &gt; {:L('初级认证')}
+        </div>
+        <eq name="user.idstate" value="8">
+            <p style="margin:20px 20px;line-height:25px;padding:20px;background-color:#fff1e0;font-size:1rem;color:#d89c2a;">{:L('认证驳回原因')} : {$user.idcardinfo}</p>
+        </eq>
+       <div class="useifor">
+           <div class="idnationality">
+               <span>{:L('国籍：')}</span>
+               <input type="text" value="{$user.idnationality}" id="regidnationality">
+           </div>
+           <div class="name" id="username">
+               <span>{:L('姓名：')}</span>
+               <input type="text" value="{$user.truename}" id="regtruename">
+           </div>
+           <div class="id" id="idtype">
+               <span>{:L('证件类型：')}</span>
+               <select name="type" id="regidtype">
+                   <option value="1" selected="selected">{:L('身份证')}</option>
+                   <option value="2" >{:L('护照')}</option>
+                   <option value="3" >{:L('驾驶证')}证</option>
+               </select>
+           </div>
+           <div class="card" >
+               <span>{:L('证件ID：')}</span>
+               <input type="text" id="regidcard">
+           </div>
+        <!--   <div class="ms">
+               <span>{:L('认证时间：')}</span>
+               <input type="text" value="{$user['addtime']|addtime}">
+           </div>-->
+            <!-- {:L('姓名：')}{$user.truename}<br/>
+            {:L('证件类型：身份证')}<br/>
+            {:L('身份证号：')}{$user.idcard}<br/>
+            {:L('认证时间：')}{$user['addtime']|addtime} -->
+        </div>
+        <div class="ifor_flow">
+            <h2>{:L('重要提示：')}</h2>
+            <p>1. {:L('请填写本人真实身份信息，否则无法正常提现')}</p>
+            <p>2. {:L('遇到问题联系客服 service@rhex.pro')}</p>
+            <div class="user_btn" href="javascript:void(0)" onclick="Update()">提交</div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script type="text/javascript">
+    function Update(){
+        var idnationality = $("#regidnationality").val();
+        var idtype = $("#regidtype").val();
+        var truename = $("#regtruename").val();
+        var idcard = $("#regidcard").val();
+
+        if(idnationality == "" || idnationality == null) {
+            layer.tips('{:L(' 请输入国籍 ')}', '#regidnationality', { tips: 3 });
+            return false;
+        }
+        if(idtype == "" || idtype == null) {
+            layer.tips('{:L(' 请选择证件类型 ')}', '#regidtype', { tips: 3 });
+            return false;
+        }
+        if(truename == "" || truename == null) {
+            layer.tips('{:L(' 请输入姓名 ')}', '#regtruename', { tips: 3 });
+            return false;
+        }
+        if(idcard == "" || idcard == null) {
+            layer.tips('{:L(' 请输入证件ID ')}', '#regidcard', { tips: 3 });
+            return false;
+        }
+
+        $.post("{:U('User/nameauth_Handle')}",{ idnationality: idnationality, idtype: idtype, truename: truename, idcard: idcard },function(data){
+            if(data.status == 1){
+                layer.msg(data.info, { icon: 1 });
+                window.setTimeout('window.location="{:U(\'User/safety\')}"',1000);
+            }else{
+                layer.msg(data.info, { icon: 2 });
+                if (data.url) {
+                    window.location = data.url;
+                }
+            }
+        },"json");
+    }
+</script>
+<script>
+    $("title").html("{:L('实名认证')} - {:C('web_title')}");
+</script>

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="kline"></div>
+asfsadf
+</body>
+</html>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="/Public/Home/K_js/charting_library/charting_library.min.js"></script>
+<script type="text/javascript" src="/Public/Home/K_js/datafeeds/udf/dist/polyfills.js"></script>
+<script type="text/javascript" src="/Public/Home/K_js/datafeeds/udf/dist/bundle.js"></script>
+<script src="https://cdn.bootcss.com/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
+<script type="text/javascript">
+    function getParameterByName(name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(location.search);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+ /* TradingView.onready(function()
+    {
+        var widget = window.tvWidget = new TradingView.widget({
+            // debug: true, // uncomment this line to see Library errors and warnings in the console
+            fullscreen: true,
+            symbol: 'AAPL',
+            interval: 'D',
+            container_id: "tv_chart_container",
+
+            //	BEWARE: no trailing slash is expected in feed URL
+            datafeed: new Datafeeds.UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
+            library_path: "/Public/Home/K_js/charting_library/",
+
+            locale: getParameterByName('lang') || "en",
+
+            disabled_features: ["use_localstorage_for_settings"],
+            enabled_features: ["study_templates"],
+            charts_storage_url: 'http://saveload.tradingview.com',
+            charts_storage_api_version: "1.1",
+            client_id: 'tradingview.com',
+            user_id: 'public_user_id',
+            theme: getParameterByName('theme'),
+        });
+    });*/
+</script>
+<script type="text/javascript">
+
+    function setCookie(name, value, expires, path, domain, secure) {
+        var cookieText = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+        if (expires instanceof Date) {
+            cookieText += '; expires=' + expires;
+        }
+        if (path) {
+            cookieText += '; expires=' + expires;
+        }
+        if (domain) {
+            cookieText += '; domain=' + domain;
+        }
+        if (secure) {
+            cookieText += '; secure';
+        }
+        document.cookie = cookieText;
+    }
+    var config    =   {
+        //supported_resolutions:["1", "3", "5", "15", "45", "60", "120", "180","240","1D","1W","1M","12M"],
+        supported_resolutions: ["5", "15", "30", "60", "30", "360", "1D"],
+        /*       "supports_search": false,//是否支持搜索
+               "supports_group_request": false,//是否支持搜索或品种解析
+               "supports_marks": false,
+               "supports_timescale_marks":false,
+               "symbolsTypes": [],*/
+
+    };
+    var datafeed = {
+
+        onReady: cb => {
+            console.log("=====onReady running");
+            setTimeout(() => cb(config), 0);
+        },
+        resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
+            var symbol_stub = {
+                name: symbolName,
+                description: "",
+                has_intraday: true,
+                has_no_volume: false,
+                minmov: 1,
+                minmov2: 2,
+                pricescale: 100,
+                session: "24x7",
+                supported_resolutions: ["1", "5", "15", "30", "60", "1D", "1W"],
+                ticker: symbolName,
+                timezone: "Asia/Shanghai",
+                type: "stock"
+            }
+            setTimeout(() => onSymbolResolvedCallback(symbol_stub), 3000);
+        },
+        getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+            timer = setInterval(() => {
+             //   alert(window.parent.socket.readyState);
+                if (window.parent.socket.readyState == 1){
+                    var host = window.location.protocol;
+                    var url =  window.location.host;
+                    window.parent.socket.send(JSON.stringify({
+                        type: 'client',
+                        method: 'KlineHistory',
+                        data: {
+                            host:host,
+                            url:url,
+                            market: symbolInfo.name,
+                            from: from,
+                            to: to,
+                            resolution: resolution
+                        }
+                    }));
+                    clearInterval(timer);
+                }else{
+
+                }
+            }, 8000);
+
+
+            window.parent.KlineHistory = data =>{
+                let bars = [];
+
+                if (data.length){
+                /*   $.ajax({
+                        url: "{:url('/Wokerman/GetKlineHistory')}",
+                        type:'POST',
+                        data:{
+                            'market':data.market,
+                            'from':data.from,
+                            'to':data.to,
+                            'resolution':data.resolution,
+                        },
+                        success:function(seg){
+                            var obj =  JSON.parse(seg)
+                            for(e in obj){
+                                var _bar = {
+                                    time: obj[e].t * 1000,
+                                    close: obj[e].c,
+                                    open: obj[e].o,
+                                    high: obj[e].h,
+                                    low: obj[e].l,
+                                    volume: obj[e].v
+                                }
+                                bars.push(_bar);
+                                meta = {
+                                    noData: false
+                                };
+                                onHistoryCallback(bars, meta)
+                               // setTimeout(() => onHistoryCallback(bars, meta));
+                            }
+
+                            console.log(bars);
+                        },
+                    });*/
+                   data.forEach(e => {
+                        var _bar = {
+                            time: e.t * 1000,
+                            close: e.c,
+                            open: e.o,
+                            high: e.h,
+                            low: e.l,
+                            volume: e.v
+                        }
+                        bars.push(_bar);
+                    });
+                    meta = {
+                        noData:true
+                    };
+                   // onHistoryCallback(bars, meta)
+                    //console.log(bars);
+                   // console.log(meta);
+                    //console.log(bars);
+                   // console.log(noData);
+                }else{
+                    meta = {
+                        noData: true
+                    }
+                }
+                setTimeout(() => onHistoryCallback(bars, meta),3000);
+            }
+            console.log('sss');
+        },
+
+        subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
+            window.parent.KlineUpdata = data => {
+                if (!data.s)
+                    return;
+                var bar = {
+                    time: data.t * 1000,
+                    close: data.c,
+                    open: data.o,
+                    high: data.h,
+                    low: data.l,
+                    volume: data.v
+                }
+                setTimeout(() => onRealtimeCallback(bar),3000);
+            }
+        },
+    }
+
+
+//"https://demo_feed.tradingview.com"
+    //http://www.jiaoyisuo.com/Wokerman
+    const  widgetOptions={
+        // debug: true, // uncomment this line to see Library errors and warnings in the console
+        fullscreen: false,// 是否全屏
+        symbol: 'hrc_usdt', // 商品标识
+        toolbar_bg: '#252B38',    //工具栏背景颜色
+        interval: '1440', // 初始化显示时间范围
+        container_id: "kline", // 容器的id名
+        // BEWARE: no trailing slash is expected in feed URL
+        // 调用接口API hrc_usdt
+        datafeed: datafeed,
+        //  datafeed: new Datafeeds.UDFCompatibleDatafeed(""),
+        library_path: "/Public/Home/K_js/charting_library/",//调用本js图表地库和样式
+
+        // 语言 en英文 zh 中文
+
+        locale: getParameterByName('lang') || "zh",
+        disabled_features: ["use_localstorage_for_settings"],// 禁用功能
+        enabled_features: ["study_templates"],
+        disabled_features:[
+            "volume_force_overlay",
+            "left_toolbar",
+            /*  //左侧
+
+            //底部
+            "timeframes_toolbar",
+            //指标
+            "header_indicators",
+            //相机
+            "header_screenshot",
+            //搜索
+            "header_symbol_search",
+            //保存
+            "header_saveload",
+            //全屏
+            "header_fullscreen_button"*/
+            "header_widget_dom_node",
+            "header_symbol_search",
+            "header_saveload",
+            "header_screenshot",
+            "header_chart_type",
+            "header_compare",
+            "header_undo_redo",
+            "timeframes_toolbar",
+            "volume_force_overlay",
+            "header_resolutions",
+            //"header_widget_dom_node"
+            //"border_around_the_chart"
+            /*"timeframes_toolbar",
+            "header_symbol_search",
+
+            "header_undo_redo",
+            "header_screenshot",
+            "header_resoluitons",
+            "header_chart_type",
+            "header_interval_dialog_button",
+
+            "show_interval_dialog_on_key_press"*/
+
+
+        ],
+
+        overrides: {
+            'paneProperties.legendProperties.showLegend': false,
+
+            "paneProperties.background": "#323947",
+            //Y轴
+            "paneProperties.vertGridProperties.color": "#454545",
+            //X轴
+            "paneProperties.horzGridProperties.color": "#454545",
+            "symbolWatermarkProperties.transparency": 90,
+            "scalesProperties.textColor" : "#AAA"
+        },
+        studies_overrides: {
+            "bollinger bands.median.color": "#33FF88",
+            "bollinger bands.upper.linewidth": 7
+        },
+
+
+        charts_storage_url: 'http://saveload.tradingview.com',
+        charts_storage_api_version: "1.1",
+        client_id: 'tradingview.com',
+        user_id: 'public_user_id',
+        theme: getParameterByName('theme')
+    }
+
+    var widget = window.tvWidget = new TradingView.widget(widgetOptions);
+    //Z当图表被创建完成时触发
+
+    widget.onChartReady(function () {
+
+/*
+
+        const config = {
+            supports_search : true,
+            supports_group_request : false,
+            supported_resolutions : ["1", "5", "15", "30", "60", "1D", "1W"],
+            supports_marks : false,
+            supports_time : true,
+            exchanges : {
+                value : "",
+                name : "All Exchanges",
+                desc : ""
+            }
+        }
+
+*/
+
+
+        //console.log(datafeed.onReady())
+        // 现在可以调用其他widget的方法了
+    });
+
+    //过滤HTML标签
+    function removeHTMLTag(str) {
+        str = str.replace(/<\/?[^>]*>/g, ''); //去除HTML tag
+        str = str.replace(/[ | ]*\n/g, '\n'); //去除行尾空白
+        //str = str.replace(/\n[\s| | ]*\r/g,'\n'); //去除多余空行
+        str = str.replace(/ /ig, ''); //去掉
+        return str;
+    }
+    //获取cookie
+    function get_cookie(Name) {
+        var search = Name + "=" //查询检索的值
+        var returnvalue = ""; //返回值
+        if (document.cookie.length > 0) {
+            sd = document.cookie.indexOf(search);
+            if (sd != -1) {
+                sd += search.length;
+                end = document.cookie.indexOf(";", sd);
+                if (end == -1)
+                    end = document.cookie.length;
+                //unescape() 函数可对通过 escape() 编码的字符串进行解码。
+                returnvalue = unescape(document.cookie.substring(sd, end))
+            }
+        }
+        return returnvalue;
+    }
+
+        var trade_qu_id = $('.table-section-title .active').attr('data');
+        var trade_moshi = 1;
+        var time=get_cookie('chart_time');
+
+       // this.datafeeds =  new Datafeeds.UDFCompatibleDatafeed("https://demo_feed.tradingview.com"),
+
+        //new ReconnectingWebSocket(url);
+            socket = new ReconnectingWebSocket("wss://www.wsex.cc:8331/wss");
+
+        socket.onopen = () => {
+
+        }
+
+    var i=1;
+    // 服务端主动推送消息时会触发这里的onmessage
+        socket.onmessage = function(e){
+            // json数据转换成js对象
+
+            var data = JSON.parse(e.data);
+
+            if(i==1){
+                setCookie('client_id',data.client_id);
+
+            }
+            console.log( data);
+            var type = data.type || '';
+
+            switch(type){
+
+                // Events.php中返回的init类型的消息，将client_id发给后台进行uid绑定
+                case 'init':
+                 //   console.log(data.client_id);
+                 //  console.log(get_cookie('client_id'));
+                    //socket.send('内容测试');
+                    // 利用jquery发起ajax请求，将client_id发给后端进行uid绑定
+                    $.post(
+                        "{:url('/Wokerman/getInfo')}",
+                        {
+                            'client_id': get_cookie('client_id'),
+                            'market':"{$market}",
+                            'trade_moshi':trade_moshi,
+                            'trade_qu_id':trade_qu_id,
+                            'time':time,
+                        },
+                        function(data)
+                        {
+                            console.log(data);
+                            //console.log('init:'+data+'2222222');
+                        }, 'json'
+
+                    );
+                    i++;
+                    break;
+                case  'say':
+                    $("[name='TOKEN']").val(data.tokens);
+                    break;
+
+                case 'getJsonTop':
+                    //未知
+                   /* getJsonTops(data.getJsonTop);
+                    // 我的财产 我的委托
+                    myGetzican(data.getEntrustAndUsercoin)
+                    //交易委托信息
+                    information(data.getDepth)
+                    //最新交易信息
+                    newestOrder(data.getTradelog)
+                    //币种行情
+                    currency(data.getJsonTop2);*/
+                    i++;
+                    break
+                case 'lineK':
+                    window[data.method](data.data)
+                    i++;
+                    break
+                // 当mvc框架调用GatewayClient发消息时直接alert出来
+                default :
+                    i++;
+                    //alert(data.message);
+                   // alert(e.data);
+            }
+        };
+
+    function KlineHistory(data) {
+    }
+    function KlineUpdata(data) {
+
+    }
+
+
+    //var TvJsApi = new TvJsApi();
+   // TvJsApi.init()
+   // TvJsApi.prototype.init();
+   /* ws.onclose = () => {
+        console.log("断开链接");
+    }*/
+
+
+</script>

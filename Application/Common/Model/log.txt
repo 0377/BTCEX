@@ -1,0 +1,1 @@
+UPDATE `tw_trade` SET `status`='2' WHERE `id` = '17379'

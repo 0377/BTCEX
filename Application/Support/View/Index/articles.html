@@ -1,0 +1,64 @@
+<include file="Public:header"/>
+
+<div class="main">
+	<div class="container-divider"></div>
+</div>
+
+<div class="container">
+	<nav class="sub-nav">
+		<ol>{:L(GetPosStr($info['cid'],$info['id'],$sign='&nbsp;&gt;&nbsp;',LANG_SET))}</ol>
+		
+		<form role="search" class="search" method="get" action="{:U('Support/index/search/')}">
+			<img class="icon" src="__PUBLIC__/Home/rh_img/soso.png" />
+			<input type="search" name="so" placeholder="{:L('搜索')}" autocomplete="off" value="{$keyword}">
+		</form>
+	</nav>
+
+	<div class="article-container">
+		<section class="article-sidebar">
+			<h3 class="sidenav-title">{:L('此组别内的文章')}</h3>
+			<ul>
+
+				<if condition="LANG_SET eq 'zh-cn'">
+					<li><a class="on">{$data.title}</a></li>
+					<else/>
+					<li><a class="on">{$data.title_en}</a></li>
+				</if>
+				<volist name="lists" id="vo">
+					<if condition="LANG_SET eq 'zh-cn'">
+						{$voc['title']}
+						<li><span><a href="{:U('Support/index/articles/cid/'.$vo['pid'].'/id/'.$vo['id'])}">{$vo['title']}</a></span></li>
+						<else/>
+						<li><span id="article_hint"><a href="{:U('Support/index/articles/cid/'.$vo['pid'].'/id/'.$vo['id'])}">{$vo['title_en']}</a></span></li>
+					</if>
+				</volist>
+			</ul>
+		</section>
+		<article class="article">
+			<header class="article-header">
+				<h1 class="article-title">{:L($data['title'])}</h1>
+				<p class="times">{:L('文章更新时间：')}{$data.endtime|date="Y-m-d H:i:s",###}</p>
+			</header>
+			<div class="article-content">
+				<span>{$data['content']}</span>
+					<p>&nbsp;</p>
+					<p>&nbsp;</p>
+					<p>{$info['jieweibs']}</p>
+					<p>{$data.endtime|date="Y年m月d日",###}</p>
+			</div>
+		</article>
+	</div>
+</div>
+
+<include file="Public:footer" />
+<script>
+    var val = $('label#language').text();
+	if(val == "English"){
+	    $('.article-title').html(`<span>{$data['title_en']}</span>`);
+		$('.article-content').html(`<span>{$data['content_en']}</span>
+					<p>&nbsp;</p>
+					<p>&nbsp;</p>
+					<p>{$info['jieweibs']}</p>
+					<p>{$data.endtime|date="Y-m-d",###}</p>`);
+	}
+</script>

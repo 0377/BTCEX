@@ -1,0 +1,909 @@
+<include file="Public:header_new" />
+<style>
+    body {background:#eceff0;}
+</style>
+<link rel="stylesheet" href="__PUBLIC__/Home/rh_css/exchange.css">
+<style>
+    .copy_button{float:right;margin-top:5px;margin-right:10px;padding:0 10px;height:30px;}
+</style>
+
+<!-- 交易内容 -->
+<div class="C2C_mian_box">
+    <!-- 交易标题 -->
+    <div class="column">
+        <a href="{:U('Exchange/index')}">
+            <h2 style="text-transform:uppercase;">USDT {:L('交易')}</h2>
+        </a>
+        <div class="navs">
+            <a href="{:U('Exchange/bank')}">&#8226; {:L('银行卡管理')}</a>
+        </div>
+    </div>
+
+    <!-- 交易详情 -->
+    <div class="clear">
+        <p style="margin-top:20px;padding:20px;font-size:16px;color:#a9862e;background-color:#fff5c0;border-radius:8px;">
+            {:L('首次充值满1000个USDT，返还总额的 0.5% 换算成等值的HRC')}
+        </p>
+        <div class="buy-box">
+            <p class="buy-title">{:L('付款期限')} : <span>30</span> {:L('分钟')}</p>
+            <input type="text" name="price" id="buy_price" autocomplete="off" class="prohibit" value="{$configs['mycz_uprice']}"
+                readonly />
+            <input type="text" name="num" id="buy_num" autocomplete="off" maxlength="11" />
+            <input type="hidden" name="max" id="buy_fee" value="{$configs['mycz_fee']}">
+            <input type="hidden" name="min" id="buy_min" value="{$configs['mycz_min']}">
+            <input type="hidden" name="max" id="buy_maxn" value="{$configs['mycz_max']}">
+            <input type="hidden" name="TOKEN" value="{:session('__token__')}">
+            <p class="buy-count">
+
+                <span>{:L('交易额')}<b id="buy_mum">0.00</b> CNY</span>
+                <span hidden>{:L('手续费')}<b id="bfee_mum">0.00</b> CNY</span>
+            </p>
+            <label class="chain-name1">{:L('买入价')}（￥）</label>
+            <label class="chain-name2" style="text-transform:uppercase;">{:L('买入量')}(USDT)</label>
+            <!--
+				<span>{:L('交易额')}<b id="buy_mum">0.00</b> USDT</span>
+				<span hidden>{:L('手续费')}<b id="bfee_mum">0.00</b> USDT</span>
+			</p>
+			<label class="chain-name1">{:L('买入价')}（$）</label>
+			<label class="chain-name2" style="text-transform:uppercase;">{:L('买入量')}（USDT）</label>-->
+
+            <button type="button" class="btn-buy" id="buybutton" onclick="tradeadd_buy();">{:L('立即买入')}</button>
+        </div>
+
+        <div class="buy-box sell-box">
+            <p class="buy-title">{:L('可用')} USDT<span>{$cny['ky']}</span></p>
+            <input type="text" name="price" id="sell_price" autocomplete="off" class="prohibit" value="{$configs['mytx_uprice']}"
+                readonly />
+            <input type="text" name="num" id="sell_num" autocomplete="off" maxlength="11"/>
+            <input type="hidden" name="fee" id="sell_fee" value="{$configs['mytx_fee']}">
+            <input type="hidden" name="min" id="sell_min" value="{$configs['mytx_min']}">
+            <input type="hidden" name="max" id="sell_max" value="{$configs['mytx_max']}">
+            <p class="buy-count">
+                <span>{:L('交易额')}<b id="sell_mum">0.00</b> CNY</span>
+                <span>{:L('手续费')}<b id="sfee_mum">0.00</b> CNY</span>
+            </p>
+
+            <!--<label class="chain-name1">{:L('卖出价')}（￥）</label>（{:Trade}）</label>-->
+            <label class="chain-name1">{:L('卖出价')}（￥）</label>
+            <label class="chain-name2" style="text-transform:uppercase;">{:L('卖出量')}(USDT)</label>
+            <button type="button" class="btn-buy" id="sellerbutton" onclick="tradeadd_sell();">{:L('立即卖出')}</button>
+        </div>
+    </div>
+</div>
+
+<!-- 温馨提示 -->
+<div class="C2C_hint">
+    <h3 class="title">{:L('温馨提示')}</h3>
+    <p>{:L('为了您的购买可以快速到账，请在交易前仔细阅读以下注意事项：')}</p>
+    <p>1.{:L('买卖商户均为实名认证商户，并提供保证金，可放心交易；')}</p>
+    <p>2. {:L('如需申请成为商户请发邮件到')} <b style="color:#FF8702">{$configs['contact']}</b> ；</p>
+    <p>3. {:L('请使用本人绑定的银行卡进行汇款，其他任何方式汇款都会退款。（禁止微信和支付宝）')}</p>
+    <p>4. {:L('商家处理时间')} <b style="color:#097DF7">9:00 - 21:00</b> {:L('非处理时间的订单会在第二天')} <b style="color:#097DF7">9:00</b>
+        {:L('开始处理，一般接单后24小时内会完成打款。')}</p>
+    <p>5. {:L('单天最多只能发起')} <b style="color:#097DF7">10</b> {:L('笔卖出订单。')}</p>
+    <p>6. {:L('单笔交易限额')} {$configs['mycz_min']} USDT ~ {$configs['mycz_max']} USDT
+        <!--<span style="margin: 0 15px;">|</span>{:L('单笔提现限额')} {$configs['mytx_min']} USDT ~ {$configs['mytx_max']} USDT-->
+    </p>
+</div>
+
+<!-- 交易记录 -->
+<div class="C2C_order_list">
+    <ul class="table-head">
+        <li style="width: 15%"><i></i>{:L('时间')}</li>
+        <li style="width: 22%"><i></i>{:L('类别')}</li>
+        <li style="width: 14%"><i></i>{:L('数量')}</li>
+        <li style="width: 10%"><i></i>{:L('单价')}(￥)</li>
+        <li style="width: 14%"><i></i>{:L('总价')}(￥)</li>
+        <li style="width: 15%" class="tc">{:L('状态')}</li>
+        <li style="width: 10%" class="tc">{:L('操作')}</li>
+    </ul>
+    <ul class="table-list">
+        <volist name="list" id="vo">
+            <li>
+                <dl>
+                    <dd class="fl" style="width:15%"><i></i>{$vo.addtime|date='Y-m-d H:i:s',###}</dd>
+                    <dd class="fl otype" style="width:22%;text-transform:uppercase;"><i></i>
+                        <eq name="vo.otype" value="1">{:L('买入')} USDT/CNY</eq>
+                        <eq name="vo.otype" value="2">{:L('卖出')} USDT/CNY</eq>
+                        <br><i></i><b>{:L('流水号：')}{$vo.orderid}</b>
+                    </dd>
+                    <dd class="fl" style="width:14%"><i></i>{$vo.num}</dd>
+                    <dd class="fl" style="width:10%"><i></i>{$vo.uprice}</dd>
+                    <dd class="fl" style="width:14%"><i></i>{$vo.mum}</dd>
+                    <dd class="fl tc adc" style="width:15%">
+                        <eq name="vo.otype" value="1">
+                            <if condition="$vo.status eq 1"><span class="green icon_time" id="status" data-id="{$vo.id}" data-aid="{$aid}" >{:L('待支付')}</span>
+                                <input type="hidden" class="btn_pay" value="1">
+                                <elseif condition="$vo.status eq 2" /><span class="green icon_time">{:L('处理中')}
+                                    <input type="hidden" class="btn_pay" value="2">
+                                </span>
+                                <elseif condition="$vo.status eq 3" /><span class="green icon_yhk">{:L('支付成功')}</span>
+                                <elseif condition="$vo.status eq 8" /><span class="red icon_yhkqx">{:L('已取消')}</span>
+                                <else />--</if>
+                            <else />
+                            <if condition="$vo.status eq 1"><span class="green icon_time">{:L('待处理')}</span>
+                                <input type="hidden" class="btn_pay" value="1">
+                                <elseif condition="$vo.status eq 2" /><span class="green icon_time">{:L('处理中')}
+                                    <input type="hidden" class="btn_pay" value="2">
+                                </span>
+                                <elseif condition="$vo.status eq 3" /><span class="green icon_yhk">{:L('打款成功')}</span>
+                                <elseif condition="$vo.status eq 8" /><span class="red icon_yhkqx">{:L('已取消')}</span>
+                                <else />--</if>
+                        </eq>
+                    </dd>
+                    <dd class="fl tc" style="width:10%">
+						<eq name="vo.otype" value="1">
+							<eq name="vo.status" value="1">
+								<!--<a class="red" href="javascript:void(0)" onclick="addPayment({$vo['id']},{$vo['aid']})"><b>{:L('付款信息')}</b><p style="line-height:22px">2020</p></a>-->
+                                <input type="hidden" id="orderid" value="{$vo.id}">
+                                <div onclick="addPayment(this,{$vo['id']},{$vo['aid']})" style="padding-top: 10px">
+                                    <p class="red" style="line-height:22px">付款信息</p>
+                                    <!--<p style="line-height:22px">{$vo.daotime}</p>-->
+                                    <if condition="$vo.daotime gt 0">
+                                        <p style="line-height:22px" value="{$vo.daotime}" class="addtime">
+                                            <span class="time" >
+                                                <span class="RemainH">00</span>时
+                                                <span class="RemainM">00</span>分
+                                                <span class="RemainS">00</span>秒
+                                            </span>
+                                        </p>
+                                    <else />
+                                        <p style="line-height:22px" value="{$vo.daotime}" class="addtime">
+                                            <span>订单已撤销</span>
+                                        </p>
+                                    </if>
+                                </div>
+							</eq>
+						</eq>
+						<eq name="vo.otype" value="2">
+							<eq name="vo.status" value="0">
+                                --
+                            </eq>
+                            <eq name="vo.status" value="1">
+                               <!--<div onclick="addPayment(this,{$vo['id']},{$vo['aid']})" style="padding-top: 20px">-->
+                                   <div style="padding-top: 20px">
+                                   <p class="green" style="line-height: 22px">--</p>
+                               </div>
+                            </eq>
+                            <eq name="vo.status" value="2">
+                                <!--<div onclick="addPayment(this,{$vo['id']},{$vo['aid']})" style="padding-top: 20px">-->
+                                    <div style="padding-top: 20px">
+                                    <p class="green" style="line-height: 22px">--</p>
+                                </div>
+                            </eq>
+						</eq>
+						<eq name="vo.status" value="2">
+                            <div onclick="addPayment(this,{$vo['id']},{$vo['aid']})" style="padding-top: 20px">
+                                <p class="red" style="line-height:22px">--</p>
+                            </div>
+                        </eq>
+						<eq name="vo.status" value="3"> -- </eq>
+						<eq name="vo.status" value="8"> -- </eq>
+                    </dd>
+                </dl>
+            </li>
+        </volist>
+    </ul>
+    <div class="pages">{$page}</div>
+</div>
+
+<!-- 汇款订单弹窗 -->
+<div class="float_win_pay float_win_table" id="addPayment" style="display: none;">
+    <div class="tan_title">
+        <h4>{:L('汇款订单')}</h4>
+        <span class="close-btn" onclick="closeCharge();">x</span>
+    </div>
+    <div class="payment_content">
+        <p>{:L('1.请按提示信息向该卖家汇款；')}</p>
+        <div style="height:300px;">
+            <table width="100%">
+                <tbody id="payment"></tbody>
+            </table>
+        </div>
+        <div class="btn_box clear">
+            <button class="appeal fl" onclick="appealEvt()" style="cursor: not-allowed;">我要申诉</button>
+            <button class="repeal fr" id="cancel" data-id="">撤销单</button>
+        </div>
+        <p>{:L('2.转账时请一定要填写备注信息；')}</p>
+        <p>{:L('3.卖家确认收到款后，自动充值USDT。如超过24小时未收到币，请向客服反馈解决。')}</p>
+        <p class="red">{:L('4.请务必使用本人绑定的银行卡通过手机银行或网银进行转账。')}</p>
+        <p class="red">{:L('5.请在30分钟之内完成转账，否则随时订单会被系统取消')}</p>
+        <div class="btn_box clear paid_box pay_stu">
+
+        </div>
+    </div>
+</div>
+
+<!-- 申诉弹窗 -->
+<div class="appeal float_win_pay" style="display: none" id="appeal">
+    <div class="appeal_title tan_title">
+        <h4>{:L('申诉内容')}</h4>
+        <span class="close-btn" onclick="closeCharge();">x</span>
+    </div>
+    <div class="payment_content">
+        <!--<form action="{:url('/exchange/complain')}" name="updateImg" enctype="multipart/form-data">-->
+            <table>
+                <tbody class="appeal_cont">
+                <tr>
+                    <td class="name">上传图片:</td>
+                    <td>
+                        <div class="img_box" style="position: relative">
+                            <div style="width: 260px;height: 130px;position: absolute;top: 10px">
+                                <img src="" alt="" id="complantImg" style="width: 100%;height: 100%;">
+                                <input type="hidden" id="img" value="" name="img_path">
+                            </div>
+                            <input type="file" name="img" id="updateImg" onchange="F()" style="position: absolute;top: 10px;">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="height:10px"></td>
+                </tr>
+                <tr class="two">
+                    <td class="name">申诉内容:</td>
+                    <td>
+                        <textarea name="content" id="content" cols="44" rows="10"></textarea>
+
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        <div class="btn_box clear">
+            <button class="appeal fl"  onclick="complant()">确定</button>
+            <button class="repeal fr" onclick="closeCharge();">取消</button>
+        </div>
+        <!--</form>-->
+    </div>
+</div>
+
+
+
+<!-- 是否实名弹窗  -->
+<div class="float_win_bank" id="addidcard" style="display: none">
+    <h2 class="tan_title">{:L('请先通过实名认证，再进行C2C交易')}</h2>
+    <div class="bank_content">
+        <a class="btn btn_1" href="{:U('User/index')}">{:L('去实名')}</a>
+        <a class="btn btn_2" href="#" onclick="closeCharge();">{:L('取消')}</a>
+    </div>
+</div>
+
+<!-- 绑定银行卡弹窗 -->
+<div class="float_win_bank" id="addBank" style="display: none">
+    <h2 class="tan_title">{:L('银行卡未绑定，请前往绑定银行卡')}</h2>
+    <div class="bank_content">
+        <a class="btn btn_1" href="{:U('Exchange/bank')}">{:L('去绑定')}</a>
+        <a class="btn btn_2" href="#" onclick="closeCharge();">{:L('取消')}</a>
+    </div>
+</div>
+<div id="dialogBoxShadow" style="position: absolute; top: 0px; left: 0px; z-index: 100; background-color: rgb(0, 0, 0); opacity: 0.5; width: 100%; background-position: initial initial; background-repeat: initial initial; display: none;"></div>
+
+
+<script type="text/javascript">
+    function complant(){
+        var content = $('#content').val();
+        var img = $('#img').val();
+        $.ajax({
+            type:'post',
+            url:"{:url('/exchange/complain')}",
+            data:{
+                img:img,
+                content:content,
+            },
+            success:function (mes) {
+                console.log(mes);
+                if(mes.status==1){
+                    layer.msg('提交成功');
+                    closeCharge();
+                }else{
+                    layer.msg('提交失败');
+                    closeCharge();
+                }
+            }
+        })
+    };
+    function F() {
+        //获取点击的文本框
+        var file = document.getElementById("updateImg");
+        //  人物头像
+        var user_head = document.getElementById("updateImg");
+        // 人物头像地址
+        var formData = new FormData();
+        var img = $('#updateImg')[0].files[0];
+        formData.append('updateImg',img);
+        $.ajax({
+            url:"{:U('exchange/upload')}",
+            type:'post',
+            processData : false,
+            contentType : false,
+            async:false,
+            data:formData,
+            success:function(data){
+                console.log(data);
+                if(data.status==0){
+                    alert(data.message);
+                }else{
+                    $('#complantImg').attr('src',"/Uploads/"+data.msg);
+                    $('#img').val("/Uploads/"+data.msg);
+                }
+            }
+
+        });
+    }
+    var trans_lock = 0;
+
+    $('#buy_num').bind('input propertychange', function () {
+        var num = "{$configs['mycz_uprice']}";
+        $("#buy_mum").html((($('#buy_num').val() * num).toFixed(8) * 1).toFixed(2));
+        var value = (($('#sell_num').val() * num * $('#buy_fee').val()).toFixed(8) * 1).toFixed(2); // 手续费
+
+        $("#beff_mum").html(value);
+    });
+    $('#sell_num').bind('input propertychange', function () {
+        var num = "{$configs['mytx_uprice']}";
+        console.log(123);
+        $("#sell_mum").html((($('#sell_num').val() * num - ($('#sell_num').val() * num * $('#sell_fee').val()))
+            .toFixed(8) * 1).toFixed(2));
+
+        var value = (($('#sell_num').val() * num * $('#sell_fee').val()).toFixed(8) * 1).toFixed(2); // 手续费
+        console.log($('#sell_fee').val());
+        $("#sfee_mum").html(value);
+    });
+
+    // 买入金额限制
+    /*$('#buy_num').blur(function () {
+        var num = parseFloat($('#buy_num').val());
+        var price = parseFloat($('#buy_price').val());
+        var min = parseFloat($('#buy_min').val());
+        var max = parseFloat($('#buy_max').val());
+        var sum = (($('#buy_num').val() * $('#buy_price').val()).toFixed(8) * 1).toFixed(2);
+
+        if(sum < min ){
+            layer.tips("{:L('交易金额必须大于')}"+min,'#buy_mum',{tips : 3 });
+            return false;
+        }else if(sum > max){
+            layer.tips("{:L('交易金额必须大于')}"+max,'#buy_mum',{tips : 3 });
+            return false;
+        }
+
+        var trans_lock = 0;
+
+
+        $('#buy_num').bind('input propertychange', function () {
+            var num =  "{$configs['mycz_uprice']}";
+            $("#buy_mum").html((($('#buy_num').val() * num).toFixed(8) * 1).toFixed(2));
+            var value = (($('#sell_num').val() * num*$('#buy_fee').val()).toFixed(8) * 1).toFixed(2); // 手续费
+
+            $("#beff_mum").html(value);
+        });
+        $('#sell_num').bind('input propertychange', function () {
+            var num =  "{$configs['mytx_uprice']}";
+            console.log(123);
+            $("#sell_mum").html((($('#sell_num').val() * num - ($('#sell_num').val() * num*$('#sell_fee').val())).toFixed(8) * 1).toFixed(2));
+
+            var value = (($('#sell_num').val() * num *$('#sell_fee').val()).toFixed(8) * 1).toFixed(2); // 手续费
+            console.log($('#sell_fee').val());
+            $("#sfee_mum").html(value);
+        });
+
+        // 买入金额限制
+        /*$('#buy_num').blur(function () {
+            var num = parseFloat($('#buy_num').val());
+            var price = parseFloat($('#buy_price').val());
+            var min = parseFloat($('#buy_min').val());
+            var max = parseFloat($('#buy_max').val());
+            var sum = (($('#buy_num').val() * $('#buy_price').val()).toFixed(8) * 1).toFixed(2);
+
+            if(sum < min ){
+                layer.tips("{:L('交易金额必须大于')}"+min,'#buy_mum',{tips : 3 });
+                return false;
+            }else if(sum > max){
+                layer.tips("{:L('交易金额必须大于')}"+max,'#buy_mum',{tips : 3 });
+                return false;
+            }
+
+        });*/
+
+    // 卖出金额限制
+    /*$('#sell_num').blur(function () {
+        var min = parseFloat($('#sell_min').val());
+        var max = parseFloat($('#sell_max').val());
+        var sum = (($('#sell_num').val() * $('#sell_price').val()).toFixed(8) * 1).toFixed(2);
+
+        if(sum < min ){
+            layer.tips("{:L('交易金额必须大于')}"+min,'#sell_mum',{tips : 3 });
+            return false;
+        }else if(sum > max){
+            layer.tips("{:L('交易金额必须大于')}"+max,'#sell_mum',{tips : 3 });
+            return false;
+        }
+
+    });*/
+    
+    function updateImg() {
+        //获取点击的文本框
+        var file = document.getElementById("updateImg");
+
+        var user_head = document.getElementById("updateImg");
+
+        var formData = new FormData();
+        var img = $('#updateImg')[0].files[0];
+        formData.append('updateImg',img);
+        $.ajax({
+            url:"{:U('User/upload_img')}",
+            type:'post',
+            processData : false,
+            contentType : false,
+            async:false,
+            data:formData,
+            success:function(data){
+                console.log(data);
+                if(data.status==0){
+                    alert(data.message);
+                }else{
+                    msg_alert("{$Think.lang.xgcg}");
+                    window.location.reload();
+
+                }
+            }
+
+        });
+    }
+
+
+    // 买入
+    function tradeadd_buy() {
+        if (trans_lock) {
+            layer.msg("{:L('不要重复提交')}", {
+                icon: 2
+            });
+            return;
+        }
+        trans_lock = 1;
+
+        var idcard = "{$idcard}";
+        var banks = "{$banks}";
+        var logins = "{$logins}";
+        if (logins == 0) {
+            layer.msg("{:L('请先登录！')}");
+            trans_lock = 0;
+            return false;
+        }
+        if (idcard == 0) {
+            addidcard();
+            trans_lock = 0;
+            return false;
+        }
+        if (banks == 0) {
+            addBank();
+            trans_lock = 0;
+            return false;
+        }
+
+        var price = parseFloat($('#buy_price').val());
+        var num = parseFloat($('#buy_num').val());
+        //var paypassword=$('#buy_paypassword').val();
+        var reg = /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/;
+
+        if (price == "" || price == null || !reg.test(price)) {
+            layer.tips("{:L('交易价格必须大于')}0", '#buy_price', {
+                tips: 3
+            });
+            trans_lock = 0;
+            return false;
+        }
+        if (num == "" || num == null || !reg.test(num)) {
+            layer.tips("{:L('交易数量必须大于')}0", '#buy_num', {
+                tips: 3
+            });
+            trans_lock = 0;
+            return false;
+        }
+
+        layer.load(2);
+
+        $.post("{:U('Exchange/upTrade')}", {
+            price: $('#buy_price').val(),
+            num: $('#buy_num').val(),
+            otype: 1
+        }, function (data) {
+            layer.closeAll('loading');
+            trans_lock = 0;
+            if (data.status == 1) {
+                console.log(data.url.orderData)
+                $("#buy_num").val('');
+                $("#sell_num").val('');
+                $("#buy_mum").html('0.00');
+                $("#sell_mum").html('0.00');
+                //$('#buy_paypassword').val('');
+                // time= setTimeout("a(data.url.orderData.addtime)",1000);
+                
+                layer.msg(data.info, {
+                    icon: 1
+                });
+                var starttime = data.url.orderData.daotime;
+                var orderid = data.url.orderData.id;
+                if(starttime > 0){
+                    var runtimes = 0;
+                    var time;
+                    var GetRTime = function (){
+                        var nMS = starttime*1000-runtimes*1000;
+                        var nH=Math.floor(nMS/(1000*60*60))%24;
+                        var nM=Math.floor(nMS/(1000*60)) % 60;
+                        var nS=Math.floor(nMS/1000) % 60;
+                        if(nMS>0){
+                            $(".RemainH").html(nH);
+                            $(".RemainM").html(nM);
+                            $(".RemainS").html(nS);
+                            $(".RemainH1").html(nH);
+                            $(".RemainM1").html(nM);
+                            $(".RemainS1").html(nS);
+                        }
+                        if($('#status').val()==2){
+                            $(".RemainH1").html(' ');
+                            $(".RemainM1").html(' ');
+                            $(".RemainS1").html(' ');
+                        }
+                        runtimes++;
+                        time= setTimeout(GetRTime,1000);
+                        console.log(orderid);
+                        if(nMS<=0){
+                            //发送ajax请求改变状态
+                            $.ajax({
+                                url:'/Exchange/changeStatus',
+                                type:'post',
+                                data:{
+                                    orderid:orderid,
+                                    dataid:8,
+                                },
+                                success:function (mes) {
+                                    console.log(mes);
+                                    if(mes.status==1){
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                            clearTimeout(time);
+                            runtimes = 0;
+                        }
+                    }
+                    window.onload=GetRTime();
+                }
+                 setTimeout('addPayment(null,'+data.url.id+','+data.url.aid+')', 2000); //延迟
+                return false;
+            } else {
+                layer.msg(data.info, {
+                    icon: 2
+                });
+                return false;
+            }
+        }, 'json');
+        
+    }
+
+    function tradeadd_sell() {
+        if (trans_lock) {
+            layer.msg("{:L('不要重复提交')}", {
+                icon: 2
+            });
+            return;
+        }
+        trans_lock = 1;
+
+        var idcard = "{$idcard}";
+        var banks = "{$banks}";
+        var logins = "{$logins}";
+        if (logins == 0) {
+            layer.msg("{:L('请先登录！')}");
+            trans_lock = 0;
+            return false;
+        }
+        if (idcard == 0) {
+            addidcard();
+            trans_lock = 0;
+            return false;
+        }
+        if (banks == 0) {
+            addBank();
+            trans_lock = 0;
+            return false;
+        }
+
+        var price = parseFloat($('#sell_price').val());
+        var num = parseFloat($('#sell_num').val());
+        //var paypassword=$('#sell_paypassword').val();
+        var reg = /^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$/;
+
+        if (price == "" || price == null || !reg.test(price)) {
+            layer.tips("{:L('交易价格必须大于')}0", '#sell_price', {
+                tips: 3
+            });
+            trans_lock = 0;
+            return false;
+        }
+        if (num == "" || num == null || !reg.test(num)) {
+            layer.tips("{:L('交易数量必须大于')}0", '#sell_num', {
+                tips: 3
+            });
+            trans_lock = 0;
+            return false;
+        }
+
+        layer.load(2);
+
+        $.post("{:U('Exchange/upMytx')}", {
+            price: $('#sell_price').val(),
+            num: $('#sell_num').val(),
+            otype: 2,
+            tokens: $("[name='TOKEN']").val()
+        }, function (data) {
+            layer.closeAll('loading');
+            trans_lock = 0;
+            if (data.status == 1) {
+                $("#buy_num").val('');
+                $("#sell_num").val('');
+                $("#buy_mum").val('0.00');
+                $("#sell_mum").val('0.00');
+                //$('#buy_paypassword').val('');
+                layer.msg(data.info, {
+                    icon: 1
+                });
+                setTimeout('window.location.reload()', 3000); //延迟
+                return false;
+            } else {
+                layer.msg(data.info, {
+                    icon: 2
+                });
+                return false;
+            }
+        }, 'json');
+    }
+
+    function addPayment(obj=null,id, aid) {
+        var dd = $(obj).parents('dd').prev().children('.btn_pay').val();
+        $('#cancel').attr('data-id',id);
+        if (id || aid) {
+            var ids = id;
+            var aids = aid;
+        } else {
+            var ids = 0;
+            var aids = 0;
+        }
+        
+        $.post("/Ajax/c2cPayment?id=" + ids + "&aid=" + aids + "&ajax=json", function (data) {
+            var data = JSON.parse(data);
+            if (data) {
+                content = '<tr><th>{:L('收款人')}</th><td>' +
+                    data['agent']['name'] +
+                    '</td></tr><tr><th>{:L('银行名称')}</th><td>' +
+                    data['agent']['bank'] +
+                    '</td></tr><tr><th>{:L('收款方开户行')}</th><td>' +
+                    data['agent']['bankprov'] +
+                    data['agent']['bankcity'] +
+                    ' ' + data['agent']['bankaddr'] +
+                    '</td></tr><tr><th>{:L('收款方账号')}</th><td><span id="invite-copy1">' +
+                    data['agent']['bankcard'] +
+                    '</span><input type="button" value="{:L('复制')}" data-clipboard-action="copy" data-clipboard-target="#invite-copy1" class="copy_button" id="copy_button1"></td></tr><tr><th>{:L('转账金额')}</th><td><b class="red">' +
+                    data['order']['mum'] +
+                    '</b></td></tr>' +
+                    // '<tr><th>{:L('转账备注')}</th><td><b class="red" id="invite-copy2">'
+                    // +data['order']['remarks']
+                    // +'</b> (请务必填写)000<input type="button" value="{:L('复制')}" data-clipboard-action="copy" data-clipboard-target="#invite-copy2" class="copy_button" id="copy_button2"></td></tr>' +
+                    '<tr><th>{:L(' 状态')}</th><td>' +
+                    data['order']['status'] +
+                    '</td></tr>'+
+                    '<tr><th>{:L('待付款时间')}</th><td>' +
+                    '<span class="RemainH1"></span>时<span class="RemainM1"></span>分<span class="RemainS1"></span>秒' +
+                    '</td></tr>'+'<input type="hidden" id="status" value="'+data['order']['sta']+'">';
+
+                if(data['order']['sta'] == 1){
+                    $('.pay_stu').html('<button class="repeal paid "onclick="changeStatus('+data['order']['id']+')">我已付款</button>');
+                }else if(data['order']['sta'] == 2){
+                    $('.pay_stu').html('<button class="repeal paid ">待处理</button>');
+                }
+
+
+                $("#payment").html(content);
+
+            }
+        });
+
+
+        parent.layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: 'autos',
+            skin: 'layui-layer-nobg',
+            shadeClose: true,
+            content: $('#addPayment')
+        });
+    }
+
+    //撤销订单
+    $('#cancel').click(function () {
+        // var orderid = $('#orderid').val();
+        var orderid = $(this).attr('data-id');
+        $.ajax({
+            type:'post',
+            url:'/Exchange/changeStatus',
+            data:{
+                orderid:orderid,
+                dataid:8,
+            },
+            success:function(msg){
+                console.log(msg);
+                if(msg.status==1){
+                    layer.msg('成功');
+                    closeCharge();
+                }else {
+                    layer.msg('参数错误');
+                    closeCharge();
+                }
+            }
+        })
+    })
+
+    //去支付
+    function changeStatus(id=null){
+        var orderid = null;
+        if(id){
+            orderid = id;
+        }else{
+             orderid = $('#orderid').val();
+        }
+
+        console.log(orderid);
+        $.ajax({
+            type:'post',
+            url:'/Exchange/changeStatus',
+            data:{
+                orderid:orderid,
+                dataid:2,
+            },
+            success:function(msg){
+                console.log(msg);
+                if(msg.status==1){
+                    layer.msg('成功');
+                    closeCharge();
+                }
+            }
+        })
+    }
+
+    function addidcard() {
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: 'autos',
+            skin: 'layui-layer-nobg',
+            shadeClose: true,
+            content: $('#addidcard')
+        });
+    }
+
+    function addBank() {
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0,
+            area: 'autos',
+            skin: 'layui-layer-nobg',
+            shadeClose: true,
+            content: $('#addBank')
+        });
+    }
+
+    function closeCharge() {
+        layer.closeAll();
+        window.location.reload();
+    }
+
+    function appealEvt() {
+        layer.msg('暂未开放');
+        // $("#addPayment").hide()
+        // console.log(12)
+        // layer.open({
+        //     type: 1,
+        //     title: false,
+        //     closeBtn: 0,
+        //     area: 'autos',
+        //     skin: 'layui-layer-nobg',
+        //     shadeClose: true,
+        //     content: $('#appeal')
+        // });
+    }
+</script>
+<script src="__PUBLIC__/Home/js/clipboard.min.js"></script>
+<script>
+    var clipboard = new Clipboard('#copy_button1');
+    clipboard.on('success', function (e) {
+        layer.msg('{:L('复制成功！')}');
+        // console.log(e);
+    });
+    clipboard.on('error', function (e) {
+        layer.msg('{:L('复制失败！')}');
+        console.log(e);
+    });
+
+    var clipboard2 = new Clipboard('#copy_button2');
+    clipboard2.on('success', function (e) {
+        layer.msg('{:L('复制成功！')}');
+        // console.log(e);
+    });
+    clipboard2.on('error', function (e) {
+        layer.msg('{:L('复制失败！')}');
+        console.log(e);
+    });
+</script>
+<script>
+    function a(starttime) {  
+    var orderid = $('#orderid').val();
+    if(starttime > 0){
+        var runtimes = 0;
+        var time;
+        function GetRTime(){
+            var nMS = starttime*1000-runtimes*1000;
+            var nH=Math.floor(nMS/(1000*60*60))%24;
+            var nM=Math.floor(nMS/(1000*60)) % 60;
+            var nS=Math.floor(nMS/1000) % 60;
+            if(nMS>0){
+                $(".RemainH").html(nH);
+                $(".RemainM").html(nM);
+                $(".RemainS").html(nS);
+                $(".RemainH1").html(nH);
+                $(".RemainM1").html(nM);
+                $(".RemainS1").html(nS);
+            }
+            if($('#status').val()==2){
+                $(".RemainH1").html(' ');
+                $(".RemainM1").html(' ');
+                $(".RemainS1").html(' ');
+            }
+
+            runtimes++;
+            time= setTimeout(GetRTime,1000);
+            if(nMS<=0){
+                //发送ajax请求改变状态
+                $.ajax({
+                    url:'/Exchange/changeStatus',
+                    type:'post',
+                    data:{
+                        orderid:orderid,
+                        dataid:8,
+                    },
+                    success:function (mes) {
+                        console.log(mes);
+                        if(mes.status==1){
+                            window.location.reload();
+                        }
+                    }
+                });
+                clearTimeout(time);
+                runtimes = 0;
+            }
+        }
+        window.onload=GetRTime;
+    }else{
+        $.ajax({
+            url:'/Exchange/changeStatus',
+            type:'post',
+            data:{
+                orderid:orderid,
+                dataid:8,
+            },
+            success:function (mes) {
+                console.log(mes);
+                if(mes.status==1){
+                    window.location.reload();
+                }
+            }
+        });
+    }
+}
+var starttime= $(".table-list").find(".addtime").attr("value");
+a(starttime);
+</script>
+<include file="Public:footer" />

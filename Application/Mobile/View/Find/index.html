@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <include file="Public:header2" />
+    <script type="text/javascript" src="__PUBLIC__/layer/layer.js"></script>
+    <script type="text/javascript" src="__PUBLIC__/Home/js/jquery.cookies.2.2.0.js"></script>
+    <style>
+		.chgbox ul li a{
+			display: block;
+			line-height: 80px;
+			text-align: center;
+			color: #fff;
+		}
+	</style>
+</head>
+
+<body class="blackbg">
+    <div id="container" class="logbg">
+        <div class="log_title">
+			{:L('应用中心')}
+        </div>
+        <div class="chgbox">
+			<ul>
+				<li><a href="{:U('Exchange/index')}">{:L('C2C')}</a></li>
+				<li><a href="{:U('Financing/index')}">{:L('币生币')}</a></li>
+			</ul>
+        </div>
+        <include file="Public:footer" />
+    </div>
+</body>
+
+</html>

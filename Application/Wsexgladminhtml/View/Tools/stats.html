@@ -1,0 +1,46 @@
+<include file="Public:header" />
+<div id="main-content">
+	<div id="main" class="main">
+		<block name="body">
+			<div class="container-span">
+				<div class="span4" style="margin: 0 0px;width: 100%;">
+					<div class="wallet_detail">
+						<div class="main-title-h">
+							<span class="h1-title">钱包明细</span>
+						</div>
+						<div class="kind_box">
+							<div class="title">
+								<p>币种总额</p>
+							</div>
+							<ul class="clear">
+								<foreach name="list" item="vo" key="k" >
+									<li>
+										<p><span>币种 : </span><span>  {$k}</span></p>
+										<p>数量：{$vo?$vo:0}</p>
+									</li>
+								</foreach>
+							</ul>
+							<div class="title">
+								<p>每日统计</p>
+							</div>
+							<ul class="clear">
+								<foreach name="arr" item="vo" key="k" >
+									<li>
+										<p><span>币种  :</span><span>  {$k}</span></p>
+										<p><span>转入  :</span><span>  {$vo.sumin}</span></p>
+										<p><span>转出  :</span><span>  {$vo.sumout}</span></p>
+									</li>
+								</foreach>
+								<li>
+									<p><span>暂无其他数据</span></p>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</block>
+	</div>
+</div>
+<!-- /内容区 -->
+<include file="Public:footer" />
